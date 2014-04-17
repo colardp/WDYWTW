@@ -20,6 +20,6 @@ public class User {
 	public void setAge(int newAge){
 		age = newAge;
 		Database db = new Database(null);
-		db.setPlayerAge(name, age);
+		db.setUserAge(name, age);
 	}
 }

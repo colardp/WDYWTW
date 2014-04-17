@@ -153,7 +153,7 @@ public class Database extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE "+ TABLE_GENRE +" (" + _ID +
 				" INTEGER PRIMARY KEY AUTOINCREMENT, " +
 				GENRE_MOVIE + " TEXT NOT NULL, " +
-				GENRE_GENRE + " TEXT NOT NULL, " +
+				GENRE_GENRE + " INTEGER NOT NULL, " + // integer because part of an enum
 				"FOREIGN KEY ("+ GENRE_MOVIE +") REFERENCES " +
 				TABLE_MOVIES+"("+MOVIES_ID+") );"
 				);
@@ -190,7 +190,7 @@ public class Database extends SQLiteOpenHelper {
 				" INTEGER PRIMARY KEY AUTOINCREMENT, " +
 				INTEREST_MOVIE + " TEXT NOT NULL, " +
 				INTEREST_USER  + " TEXT NOT NULL, " +
-				INTEREST_INTEREST + " TEXT NOT NULL, " +
+				INTEREST_INTEREST + " INTEGER NOT NULL, " + // int because part of an enum
 				"FOREIGN KEY ("+ INTEREST_MOVIE +") REFERENCES " +
 				TABLE_MOVIES+"("+MOVIES_ID+"), " +
 				"FOREIGN KEY ("+ INTEREST_USER + ") REFERENCES " +
@@ -263,12 +263,95 @@ public class Database extends SQLiteOpenHelper {
 	}
 	
 
-	public void setPlayerAge(String name, int age){
+	public void setUserAge(String name, int age){
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.execSQL("UPDATE "+TABLE_USERS+" SET "+
 		USERS_AGE+" = "+Integer.toString(age) + 
 		" WHERE " + USERS_NAME + " = \""+name+"\";");
 		db.close();
 	}
+	
+	
+	
+	// movie part
+	
+	// fill the movie with data
+	public void fillMovie( Movie movie ){
+		// instantiate database, cursor and selection
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cur;
+		String[] selectionArgs = new String[] { movie.getID() };
+		// execute statements
+		// table movies
+		cur = db.rawQuery("SELECT "+ 
+				MOVIES_NAME + ", "+
+				MOVIES_DIRECTOR + ", "+
+				MOVIES_DURATION + ", "+
+				MOVIES_YEAR + ", "+
+				MOVIES_RATING + ", "+
+				MOVIES_DESCRIPTION + ", "+
+				MOVIES_AGERESTR + 
+				" FROM "+TABLE_MOVIES+
+				" WHERE "+MOVIES_ID+" = ?s", 
+				selectionArgs);
+		cur.moveToFirst();
+		// build values
+		movie.title = cur.getString(0);
+		movie.director = cur.getString(1);
+		movie.duration = cur.getInt(2);
+		movie.year = cur.getInt(3);
+		movie.rating = cur.getFloat(4);
+		movie.description = cur.getString(5);
+		movie.ageRestrictions = cur.getInt(6);
+		
+		// boolean tables: information is presence in the table
+		cur = db.rawQuery("SELECT * FROM "+TABLE_COMINGSOON+" WHERE "+
+						   COMINGSOON_MOVIE + " = ?s",
+				selectionArgs);
+		movie.isComingSoon = (cur.getCount() == 1);
+		
+		cur = db.rawQuery("SELECT * FROM "+TABLE_PLAYINGNOW+" WHERE "+
+				   		   PLAYINGNOW_MOVIE + " = ?s",
+				selectionArgs);
+		movie.isPlayingNow = (cur.getCount() == 1);	
+		
+		cur = db.rawQuery("SELECT * FROM "+TABLE_MOSTWATCHED+" WHERE "+
+				   		    MOSTWATCHED_MOVIE + " = ?s",
+				selectionArgs);
+		movie.isMostWatched = (cur.getCount() == 1);
+		
+		// TODO: maybe add a data container for these
+		// genre, awards, cast related
+		// interest
+		
+	}
+	
+	
+	// get some info about the movie
+	public MovieQuickData getMovieQuickData( Movie movie ){
+		SQLiteDatabase db = this.getReadableDatabase();
+		// execute a statement in the database
+		Cursor cur = db.rawQuery("SELECT "+MOVIES_NAME+", "+
+										   MOVIES_DIRECTOR+", "+
+										   MOVIES_YEAR+
+								 "FROM " + TABLE_MOVIES +" "+
+								 "WHERE "+MOVIES_ID+" = ?s",
+								 new String[] {movie.getID()}
+				 );
+		// this is an error! (normally, never happening)
+		if(cur.getCount() < 1){
+			return null;
+		}
+		// otherwise, build value
+		cur.moveToFirst();
+		MovieQuickData result =  new MovieQuickData(
+									cur.getString(0),
+									cur.getString(1),
+									cur.getInt(2)
+								);
+		db.close();
+		return result;
+	}
+	
 
 }
