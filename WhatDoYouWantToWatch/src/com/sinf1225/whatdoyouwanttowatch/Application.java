@@ -1,5 +1,7 @@
 package com.sinf1225.whatdoyouwanttowatch;
 
+import android.content.Context;
+
 /**
  * Application
  * Sort of super class containing global data and user interaction
@@ -13,14 +15,14 @@ public class Application {
 	 * @param password: password of the user
 	 * @return true if the name-password combination is correct
 	 */
-	public static boolean login(String name, String password){
-		Database db = new Database(null);
+	public static boolean login(Context context, String name, String password){
+		Database db = new Database(context);
 		boolean canLogin = db.login(
 				name,
 				password
 				);
 		if(canLogin){
-			currentUser = new User( name );
+			currentUser = new User( context, name );
 		}
 		return canLogin;
 	}

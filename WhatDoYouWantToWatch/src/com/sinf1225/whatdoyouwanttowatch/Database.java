@@ -80,7 +80,7 @@ public class Database extends SQLiteOpenHelper {
 			return false; // user already exists
 		}
 		db.close();
-		// player does not exist
+		// user does not exist
 		db = this.getWritableDatabase();
 		db.execSQL("INSERT INTO "+TABLE_USERS+"("+USERS_NAME+", "+
 				USERS_PSWD+", "+USERS_AGE+") VALUES (\""
@@ -90,18 +90,23 @@ public class Database extends SQLiteOpenHelper {
 		return true;
 	}
 	
-	public int getPlayerAge(String name){
+	public int getUserAge(String name){
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.query( true,
 				TABLE_USERS, 
 				new String[] {USERS_AGE},
 				USERS_NAME+" = \""+name+"\"",
 				null, null, null, null, null);
-		//cursor.moveToFirst();
+		cursor.moveToFirst();
+		if(cursor.getCount() < 1){
+			return 0;
+		}
 		int age = cursor.getInt(0);
 		db.close();
 		return age;
 	}
+	
+
 	public void setPlayerAge(String name, int age){
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.execSQL("UPDATE "+TABLE_USERS+" SET "+

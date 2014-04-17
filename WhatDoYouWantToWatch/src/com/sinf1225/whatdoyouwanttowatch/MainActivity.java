@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
 			return;
 		}
 		// try to log in through the application
-		boolean canLogin = Application.login(name, password);
+		boolean canLogin = Application.login(this, name, password);
 		
 		// respond accordingly
 		if(canLogin){

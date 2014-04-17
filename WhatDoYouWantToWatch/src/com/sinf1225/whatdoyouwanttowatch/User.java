@@ -1,14 +1,17 @@
 package com.sinf1225.whatdoyouwanttowatch;
+
+import android.content.Context;
+
 /**
  * Class holding data for a user
  */
 public class User {
 	private String name;
 	private int age;
-	public User(String username){
+	public User(Context context, String username){
 		name = username;
-		Database db = new Database(null);
-		age = db.getPlayerAge(username);
+		Database db = new Database(context);
+		age = db.getUserAge(username);
 	}
 	
 	public int getAge(){
