@@ -1,5 +1,9 @@
 package com.sinf1225.whatdoyouwanttowatch;
 
+
+import java.util.Hashtable;
+
+
 import android.content.Context;
 
 /**
@@ -44,4 +48,17 @@ public class Application {
 	}
 	
 	// TODO: add "already encountered movies" feature to limit need to access database
+	
+	// dictionary containing the pairs ID-movie object
+	private Hashtable<String, Movie> encounteredMovies = new Hashtable<String, Movie>();
+	
+	public Movie getMovie( String imdbID ){
+		Movie res = encounteredMovies.get(imdbID);
+		if(res == null){
+			// build a new movie object
+			res = new Movie( imdbID );
+			encounteredMovies.put(imdbID, res);
+		}
+		return res;
+	}
 }

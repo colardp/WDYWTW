@@ -1,5 +1,6 @@
 package com.sinf1225.whatdoyouwanttowatch;
 
+
 import android.content.Context;
 
 public class Movie {
@@ -44,6 +45,8 @@ public class Movie {
 	// This gets "a lot of" information from the database
 	// so it is to be used only if the movie needs filling
 	// the context argument is used to create a database
+	// In fact, it is a good practice to use movie.fillData(...) every time you
+	//  access a movie in the program
 	public void fillData( Context context ){
 		if(filled){
 			return;
@@ -58,8 +61,14 @@ public class Movie {
 		if(filled){
 			return;
 		}
+
 		db.fillMovie(this); // what did you expect?
+		
 		filled = true;
+		// also, add quick data...
+		if(quickData == null){
+			quickData = new MovieQuickData(title, director, year);
+		}
 	}
 
 	// get some quick data from the Movie, for display for example
