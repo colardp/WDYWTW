@@ -19,9 +19,9 @@ public class Movie {
 	public boolean isMostWatched;
 	public boolean isPlayingNow;
 	
-	public String[] RelatedMoviesID;
-	public String Awards[];
-	public String Cast[];
+	public Movie[] RelatedMovies;
+	public Award[] Awards;
+	public String[][] Cast; // Cast[ numero_film ][ i ] gives the actor if i==0, and the character if i==1
 
 	public Genre MovieGenre[];
 	
@@ -61,10 +61,13 @@ public class Movie {
 		if(filled){
 			return;
 		}
+		
+		// this is put here in order to avoid infinite loops during
+		// the fillMovie (calls to Application.getMovie)
+		filled = true;
 
 		db.fillMovie(this); // what did you expect?
 		
-		filled = true;
 		// also, add quick data...
 		if(quickData == null){
 			quickData = new MovieQuickData(title, director, year);

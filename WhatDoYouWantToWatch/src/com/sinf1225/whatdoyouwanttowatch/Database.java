@@ -190,7 +190,7 @@ public class Database extends SQLiteOpenHelper {
 				" INTEGER PRIMARY KEY AUTOINCREMENT, " +
 				INTEREST_MOVIE + " TEXT NOT NULL, " +
 				INTEREST_USER  + " TEXT NOT NULL, " +
-				INTEREST_INTEREST + " INTEGER NOT NULL, " + // int because part of an enum
+				INTEREST_INTEREST + " INTEGER NOT NULL DEFAULT 0, " + // int because part of an enum
 				"FOREIGN KEY ("+ INTEREST_MOVIE +") REFERENCES " +
 				TABLE_MOVIES+"("+MOVIES_ID+"), " +
 				"FOREIGN KEY ("+ INTEREST_USER + ") REFERENCES " +
@@ -279,8 +279,9 @@ public class Database extends SQLiteOpenHelper {
 	public void fillMovie( Movie movie ){
 		// instantiate database, cursor and selection
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cur;
+		Cursor cur, cur2;
 		String[] selectionArgs = new String[] { movie.getID() };
+		
 		// execute statements
 		// table movies
 		cur = db.rawQuery("SELECT "+ 
@@ -320,9 +321,70 @@ public class Database extends SQLiteOpenHelper {
 				selectionArgs);
 		movie.isMostWatched = (cur.getCount() == 1);
 		
-		// TODO: maybe add a data container for these
-		// genre, awards, cast related
+		// many elements table
+		// genre, awards, cast, related
+		cur = db.rawQuery("SELECT "+ AWARDS_NAME+", "+AWARDS_YEAR+" FROM "+ 
+				TABLE_AWARDS + " WHERE " + AWARDS_MOVIE + " = ?s",
+				selectionArgs);
+		movie.Awards = new Award[ cur.getCount() ];
+		cur.moveToFirst();
+		for(int i=0; !cur.isAfterLast(); i++){
+			movie.Awards[i] = new Award(cur.getString(1), cur.getInt(2));
+			cur.moveToNext();
+		}
+		
+		cur = db.rawQuery("SELECT "+CAST_ACTOR+", "+CAST_CHARACTER+" FROM "+
+				TABLE_CAST +  " WHERE "+CAST_MOVIE+" = ?s",
+				selectionArgs);
+		movie.Cast = new String[ cur.getCount() ][2];
+		cur.moveToFirst();
+		for(int i=0; !cur.isAfterLast(); i++){
+			movie.Cast[i] = new String[] {cur.getString(0), cur.getString(1)};
+			cur.moveToNext();
+		}
+		
+		cur = db.rawQuery("SELECT "+GENRE_GENRE+" FROM "+TABLE_GENRE + " WHERE "+
+					GENRE_MOVIE + " = ?s",
+					selectionArgs);
+		movie.MovieGenre = new Genre[ cur.getCount() ];
+		for(int i=0; !cur.isAfterLast(); i++){
+			movie.MovieGenre[i] = Genre.values()[cur.getInt(0)];
+			cur.moveToNext();
+		}
+		
+		// related movies: there's a catch! The movie we're looking for
+		// can be either movie1 or movie2!
+		cur = db.rawQuery("SELECT "+RELATED_MOVIE1+" FROM "+TABLE_RELATED+
+				" WHERE "+RELATED_MOVIE2+" = ?s",
+				selectionArgs);
+		cur2= db.rawQuery("SELECT "+RELATED_MOVIE2+" FROM "+TABLE_RELATED+
+				" WHERE "+RELATED_MOVIE1+" = ?s",
+				selectionArgs);
+		int count1 = cur.getCount();
+		movie.RelatedMovies = new Movie[ count1 + cur2.getCount() ];
+		cur.moveToFirst();
+		for(int i=0; !cur.isAfterLast(); i++){
+			movie.RelatedMovies[i] = Application.getMovie(cur.getString(0));
+			cur.moveToNext();
+		}
+		cur2.moveToFirst();
+		for(int i=count1; !cur2.isAfterLast(); i++){
+			movie.RelatedMovies[i] = Application.getMovie(cur2.getString(0));
+			cur2.moveToNext();
+		}
+		
 		// interest
+		// this computes only for current user
+		cur = db.rawQuery("SELECT "+INTEREST_INTEREST+" FROM "+TABLE_INTEREST+
+				" WHERE "+INTEREST_MOVIE+" = ?s AND "+INTEREST_USER+" = ?s",
+				new String[] {movie.getID(), Application.getUser().getName()});
+		movie.InterestForUser = new Interest[ cur.getCount() ];
+		for(int i=0; !cur.isAfterLast(); i++){
+			movie.InterestForUser[i] = Interest.values()[cur.getInt(0)];
+			cur.moveToNext();
+		}
+		
+		// DONE
 		
 	}
 	

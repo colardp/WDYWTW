@@ -22,4 +22,7 @@ public class User {
 		Database db = new Database(null);
 		db.setUserAge(name, age);
 	}
+	public String getName(){
+		return name;
+	}
 }

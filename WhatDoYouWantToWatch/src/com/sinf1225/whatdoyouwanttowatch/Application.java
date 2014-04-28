@@ -37,6 +37,7 @@ public class Application {
 	 */
 	public static void logout(){
 		currentUser = null;
+		clearMovies();  // empty the database
 	}
 	
 	/**
@@ -47,12 +48,25 @@ public class Application {
 		return currentUser != null;
 	}
 	
-	// TODO: add "already encountered movies" feature to limit need to access database
+	/**
+	 * Returns the current user of the application
+	 * @return the current user, or null if no current user
+	 */
+	public static User getUser(){
+		return currentUser;
+	}
+	
 	
 	// dictionary containing the pairs ID-movie object
-	private Hashtable<String, Movie> encounteredMovies = new Hashtable<String, Movie>();
+	private static Hashtable<String, Movie> encounteredMovies = new Hashtable<String, Movie>();
 	
-	public Movie getMovie( String imdbID ){
+	/**
+	 * Returns a movie from given imdbID
+	 * This makes sure Movie objects already encountered (and filled) are not lost! 
+	 * @param imdbID: a String, holding the unique imdb id of the movie
+	 * @return a Movie (that may or may not be filled) object
+	 */
+	public static Movie getMovie( String imdbID ){
 		Movie res = encounteredMovies.get(imdbID);
 		if(res == null){
 			// build a new movie object
@@ -60,5 +74,10 @@ public class Application {
 			encounteredMovies.put(imdbID, res);
 		}
 		return res;
+	}
+	
+	// free the memory taken from all movies (usually on logout)
+	public static void clearMovies(){
+		encounteredMovies.clear();
 	}
 }
