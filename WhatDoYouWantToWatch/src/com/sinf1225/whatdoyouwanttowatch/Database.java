@@ -197,6 +197,12 @@ public class Database extends SQLiteOpenHelper {
 				TABLE_USERS +"("+ USERS_NAME+ ") );"
 				);
 		// TODO: add some data into the database!
+		fillFakeData( db );
+	}
+	
+	private void fillFakeData(SQLiteDatabase db){
+		db.execSQL("INSERT INTO "+TABLE_MOVIES+" VALUES (,\"movie1\", \"Star Wars\","+
+	"\"George Lucas\", 42, 1979, 9.9, \"Fighting in the stars\", );");
 	}
 
 	@Override

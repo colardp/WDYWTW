@@ -19,8 +19,11 @@
     <string name="newuser_wrong">Wrong User Configuration</string>
 
     <!-- main menu -->
-    <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_activity_main_menu">Main Menu</string>
     <string name="main_happy_text">What do you want to watch today?</string>
     <string name="title_activity_new_user">Create a new user</string>
+    
+    <!-- Settings menu -->
+    <string name="settings_category_user">User settings</string>
 
 </resources>
